@@ -1,0 +1,58 @@
+name: Feature Request
+description: Suggest a new feature, improvement, or documentation addition.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an improvement. Please describe your idea below.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+      description: "What problem are you trying to solve? Is this related to a frustration with the current setup?"
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: "Describe the solution you would like."
+      placeholder: "It would be helpful if..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: "Have you considered any alternative solutions or workarounds?"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: "Which part of the project does this affect?"
+      options:
+        - Docker Compose configuration
+        - README / Documentation
+        - Environment variables
+        - Backup / Restore
+        - SMTP / Email
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: "Any other context, screenshots, or references."
+    validations:
+      required: false

@@ -1,0 +1,80 @@
+name: Bug Report
+description: Report a deployment issue, configuration error, or unexpected behavior.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug. Please fill out the sections below so we can reproduce and fix the issue.
+
+  - type: input
+    id: coolify-version
+    attributes:
+      label: Coolify Version
+      description: "Found in Coolify dashboard footer (e.g. v4.0.0-beta.380)"
+      placeholder: "v4.x.x"
+    validations:
+      required: true
+
+  - type: input
+    id: openproject-version
+    attributes:
+      label: OpenProject Image Tag
+      description: "The image tag from docker-compose.yml (e.g. 17-slim)"
+      placeholder: "17-slim"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: "What happened? What did you expect to happen?"
+      placeholder: "Describe the issue..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: "How can we reproduce this issue?"
+      placeholder: |
+        1. Deploy with these environment variables...
+        2. Navigate to...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: "Paste relevant logs from Coolify's Logs tab. Redact any secrets."
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: dns-provider
+    attributes:
+      label: DNS Provider
+      description: "Which DNS provider are you using?"
+      options:
+        - Cloudflare
+        - Hetzner DNS
+        - Namecheap
+        - Route 53 (AWS)
+        - Google Cloud DNS
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: "Any other context, screenshots, or configuration details."
+    validations:
+      required: false
