@@ -181,6 +181,53 @@ dig +short your-domain.com
 
 ---
 
+## Email / SMTP Configuration (Optional)
+
+To enable email notifications (work package updates, mentions, password resets), configure SMTP via Coolify's Environment Variables panel.
+
+### Required SMTP Variables
+
+| Variable | Example | Description |
+|---|---|---|
+| `OPENPROJECT_EMAIL__DELIVERY__METHOD` | `smtp` | Must be `smtp` to enable email |
+| `OPENPROJECT_SMTP__ADDRESS` | `smtp.gmail.com` | SMTP server hostname |
+| `OPENPROJECT_SMTP__PORT` | `587` | SMTP port (587 for STARTTLS, 465 for SSL) |
+| `OPENPROJECT_SMTP__DOMAIN` | `example.com` | Your email domain |
+| `OPENPROJECT_SMTP__AUTHENTICATION` | `plain` | Auth method: `plain`, `login`, or `cram_md5` |
+| `OPENPROJECT_SMTP__USER__NAME` | `user@example.com` | SMTP username |
+| `OPENPROJECT_SMTP__PASSWORD` | `app-password` | SMTP password or app-specific password |
+| `OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO` | `true` | Enable STARTTLS encryption |
+| `OPENPROJECT_MAIL__FROM` | `openproject@example.com` | Sender address for outgoing emails |
+
+### Gmail Example
+
+> **Note:** Gmail requires an [App Password](https://support.google.com/accounts/answer/185833) -- your regular password will not work.
+
+| Variable | Value |
+|---|---|
+| `OPENPROJECT_EMAIL__DELIVERY__METHOD` | `smtp` |
+| `OPENPROJECT_SMTP__ADDRESS` | `smtp.gmail.com` |
+| `OPENPROJECT_SMTP__PORT` | `587` |
+| `OPENPROJECT_SMTP__DOMAIN` | `gmail.com` |
+| `OPENPROJECT_SMTP__AUTHENTICATION` | `plain` |
+| `OPENPROJECT_SMTP__USER__NAME` | `your-email@gmail.com` |
+| `OPENPROJECT_SMTP__PASSWORD` | `your-app-password` |
+| `OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO` | `true` |
+| `OPENPROJECT_MAIL__FROM` | `your-email@gmail.com` |
+
+### Verify Email Delivery
+
+After deploying with SMTP variables:
+
+1. Log into OpenProject as admin
+2. Go to **Administration** > **Emails and notifications** > **Email notifications**
+3. Click **Send a test email**
+4. Check your inbox for the test email
+
+If the email does not arrive, check the `worker` service logs in Coolify for SMTP errors.
+
+---
+
 ## Services Reference
 
 | Service | Image | Purpose |
@@ -396,6 +443,53 @@ dig +short domain-adiniz.com
 **Sebep:** Domain hicbir servise duzgun atanmamis, bu yuzden Traefik varsayilan rotaya duser.
 
 **Cozum:** Domain'in `web` servisinde dogru port (`8080`) ile ayarlandigindan ve formatin `https://domain-adiniz.com` (protokol ile, port olmadan) oldugundan emin olun.
+
+---
+
+## E-posta / SMTP Yapilandirmasi (Istege Bagli)
+
+E-posta bildirimlerini (is paketi guncellemeleri, bahsetmeler, sifre sifirlama) etkinlestirmek icin Coolify'in Ortam Degiskenleri panelinden SMTP yapilandirilmalidir.
+
+### Gerekli SMTP Degiskenleri
+
+| Degisken | Ornek | Aciklama |
+|---|---|---|
+| `OPENPROJECT_EMAIL__DELIVERY__METHOD` | `smtp` | E-postayi etkinlestirmek icin `smtp` olmali |
+| `OPENPROJECT_SMTP__ADDRESS` | `smtp.gmail.com` | SMTP sunucu adresi |
+| `OPENPROJECT_SMTP__PORT` | `587` | SMTP portu (STARTTLS icin 587, SSL icin 465) |
+| `OPENPROJECT_SMTP__DOMAIN` | `example.com` | E-posta domain'iniz |
+| `OPENPROJECT_SMTP__AUTHENTICATION` | `plain` | Kimlik dogrulama: `plain`, `login` veya `cram_md5` |
+| `OPENPROJECT_SMTP__USER__NAME` | `user@example.com` | SMTP kullanici adi |
+| `OPENPROJECT_SMTP__PASSWORD` | `uygulama-sifresi` | SMTP sifresi veya uygulamaya ozel sifre |
+| `OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO` | `true` | STARTTLS sifrelemeyi etkinlestir |
+| `OPENPROJECT_MAIL__FROM` | `openproject@example.com` | Giden e-postalar icin gonderici adresi |
+
+### Gmail Ornegi
+
+> **Not:** Gmail bir [Uygulama Sifresi](https://support.google.com/accounts/answer/185833) gerektirir -- normal sifreniz calismaz.
+
+| Degisken | Deger |
+|---|---|
+| `OPENPROJECT_EMAIL__DELIVERY__METHOD` | `smtp` |
+| `OPENPROJECT_SMTP__ADDRESS` | `smtp.gmail.com` |
+| `OPENPROJECT_SMTP__PORT` | `587` |
+| `OPENPROJECT_SMTP__DOMAIN` | `gmail.com` |
+| `OPENPROJECT_SMTP__AUTHENTICATION` | `plain` |
+| `OPENPROJECT_SMTP__USER__NAME` | `e-postaniz@gmail.com` |
+| `OPENPROJECT_SMTP__PASSWORD` | `uygulama-sifreniz` |
+| `OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO` | `true` |
+| `OPENPROJECT_MAIL__FROM` | `e-postaniz@gmail.com` |
+
+### E-posta Teslimini Dogrula
+
+SMTP degiskenleriyle deploy ettikten sonra:
+
+1. OpenProject'e admin olarak giris yapin
+2. **Administration** > **Emails and notifications** > **Email notifications** yoluna gidin
+3. **Send a test email** butonuna tiklayin
+4. Gelen kutunuzu test e-postasi icin kontrol edin
+
+E-posta ulasmadiysa, Coolify'da `worker` servis loglarini SMTP hatalari icin kontrol edin.
 
 ---
 
