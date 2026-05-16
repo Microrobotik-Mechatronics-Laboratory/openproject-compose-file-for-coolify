@@ -1,0 +1,164 @@
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    stop_grace_period: "3s"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: openproject
+    networks:
+      - backend
+
+  cache:
+    image: memcached
+    restart: unless-stopped
+    networks:
+      - backend
+
+  seeder:
+    image: openproject/openproject:17-slim
+    restart: on-failure
+    command: "./docker/prod/seeder"
+    environment:
+      OPENPROJECT_HTTPS: "true"
+      OPENPROJECT_HOST__NAME: "${OPENPROJECT_HOST__NAME}"
+      OPENPROJECT_ADDITIONAL__HOST__NAMES: "web"
+      OPENPROJECT_HSTS: "true"
+      OPENPROJECT_RAILS__CACHE__STORE: "memcache"
+      OPENPROJECT_CACHE__MEMCACHE__SERVER: "cache:11211"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__URL: "wss://${OPENPROJECT_HOST__NAME}/hocuspocus"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__SECRET: "${COLLABORATIVE_SERVER_SECRET}"
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db/openproject?pool=20&encoding=unicode&reconnect=true"
+      RAILS_MIN_THREADS: 4
+      RAILS_MAX_THREADS: 16
+      IMAP_ENABLED: "false"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    volumes:
+      - opdata:/var/openproject/assets
+    networks:
+      - backend
+    depends_on:
+      - db
+      - cache
+
+  web:
+    image: openproject/openproject:17-slim
+    restart: unless-stopped
+    command: "./docker/prod/web"
+    hostname: "${OPENPROJECT_HOST__NAME}"
+    environment:
+      OPENPROJECT_HTTPS: "true"
+      OPENPROJECT_HOST__NAME: "${OPENPROJECT_HOST__NAME}"
+      OPENPROJECT_ADDITIONAL__HOST__NAMES: "web"
+      OPENPROJECT_HSTS: "true"
+      OPENPROJECT_RAILS__CACHE__STORE: "memcache"
+      OPENPROJECT_CACHE__MEMCACHE__SERVER: "cache:11211"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__URL: "wss://${OPENPROJECT_HOST__NAME}/hocuspocus"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__SECRET: "${COLLABORATIVE_SERVER_SECRET}"
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db/openproject?pool=20&encoding=unicode&reconnect=true"
+      RAILS_MIN_THREADS: 4
+      RAILS_MAX_THREADS: 16
+      IMAP_ENABLED: "false"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    volumes:
+      - opdata:/var/openproject/assets
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - db
+      - cache
+      - seeder
+    labels:
+      - autoheal=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health_checks/default"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
+  worker:
+    image: openproject/openproject:17-slim
+    restart: unless-stopped
+    command: "./docker/prod/worker"
+    environment:
+      OPENPROJECT_HTTPS: "true"
+      OPENPROJECT_HOST__NAME: "${OPENPROJECT_HOST__NAME}"
+      OPENPROJECT_ADDITIONAL__HOST__NAMES: "web"
+      OPENPROJECT_HSTS: "true"
+      OPENPROJECT_RAILS__CACHE__STORE: "memcache"
+      OPENPROJECT_CACHE__MEMCACHE__SERVER: "cache:11211"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__URL: "wss://${OPENPROJECT_HOST__NAME}/hocuspocus"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__SECRET: "${COLLABORATIVE_SERVER_SECRET}"
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db/openproject?pool=20&encoding=unicode&reconnect=true"
+      RAILS_MIN_THREADS: 4
+      RAILS_MAX_THREADS: 16
+      IMAP_ENABLED: "false"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    volumes:
+      - opdata:/var/openproject/assets
+    networks:
+      - backend
+    depends_on:
+      - db
+      - cache
+      - seeder
+
+  cron:
+    image: openproject/openproject:17-slim
+    restart: unless-stopped
+    command: "./docker/prod/cron"
+    environment:
+      OPENPROJECT_HTTPS: "true"
+      OPENPROJECT_HOST__NAME: "${OPENPROJECT_HOST__NAME}"
+      OPENPROJECT_ADDITIONAL__HOST__NAMES: "web"
+      OPENPROJECT_HSTS: "true"
+      OPENPROJECT_RAILS__CACHE__STORE: "memcache"
+      OPENPROJECT_CACHE__MEMCACHE__SERVER: "cache:11211"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__URL: "wss://${OPENPROJECT_HOST__NAME}/hocuspocus"
+      OPENPROJECT_COLLABORATIVE__EDITING__HOCUSPOCUS__SECRET: "${COLLABORATIVE_SERVER_SECRET}"
+      DATABASE_URL: "postgres://postgres:${POSTGRES_PASSWORD}@db/openproject?pool=20&encoding=unicode&reconnect=true"
+      RAILS_MIN_THREADS: 4
+      RAILS_MAX_THREADS: 16
+      IMAP_ENABLED: "false"
+      SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    volumes:
+      - opdata:/var/openproject/assets
+    networks:
+      - backend
+    depends_on:
+      - db
+      - cache
+      - seeder
+
+  hocuspocus:
+    image: openproject/hocuspocus:17.4.0
+    restart: unless-stopped
+    environment:
+      SECRET: "${COLLABORATIVE_SERVER_SECRET}"
+      OPENPROJECT_URL: "http://web:8080"
+      OPENPROJECT_HTTPS: "true"
+    networks:
+      - backend
+      - frontend
+
+  autoheal:
+    image: willfarrell/autoheal:1.2.0
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_START_PERIOD: 600
+      AUTOHEAL_INTERVAL: 30
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  pgdata:
+  opdata:
